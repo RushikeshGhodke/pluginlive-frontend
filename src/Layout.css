@@ -1,0 +1,15 @@
+.layout-container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.main-content {
+    margin-top: 4.3rem; /* Create space below the fixed navbar */
+    padding-left: 50px;
+    padding-right: 50px;
+}
+
+.content-area {
+    background-color: #F9F9F9;
+}
