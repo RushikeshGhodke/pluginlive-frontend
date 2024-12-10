@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import api from "../api/index.js";
 
 const VerifyOTP = () => {
     const [otp, setOtp] = useState('');
@@ -22,7 +23,7 @@ const VerifyOTP = () => {
         setMessage('');
 
         try {
-            const response = await axios.post('http://localhost:3000/api/v1/users/verify-otp', { email, otp });
+            const response = await api.post('/users/verify-otp', { email, otp });
             setMessage(response.data.message);
             // Navigate to reset password page after successful OTP verification
             navigate('/reset-password', { state: { email } });

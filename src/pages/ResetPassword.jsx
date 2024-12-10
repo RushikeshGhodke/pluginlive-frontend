@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import {Link, Navigate, useLocation, useNavigate} from 'react-router-dom';
 import axios from 'axios';
+import api from "../api/index.js";
 
 const ResetPassword = () => {
     const [password, setPassword] = useState('');
@@ -34,7 +35,7 @@ const ResetPassword = () => {
 
         try {
             console.log(email)
-            const response = await axios.post('http://localhost:3000/api/v1/users/reset-password', {
+            const response = await api.post('/users/reset-password', {
                 email,
                 password
             });

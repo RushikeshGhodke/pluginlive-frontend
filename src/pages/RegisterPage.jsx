@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import api from "../api/index.js";
 
 const RegisterPage = () => {
     const navigate = useNavigate();
@@ -54,7 +55,7 @@ const RegisterPage = () => {
 
         try {
             // Send registration request to the server
-            const response = await axios.post('http://localhost:3000/api/v1/users/register', form, {
+            const response = await api.post('/users/register', form, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                 },
