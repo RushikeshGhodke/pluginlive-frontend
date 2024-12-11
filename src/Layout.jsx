@@ -5,7 +5,7 @@ import Navbar from './components/Navbar';
 
 const Layout = () => {
     return (
-        <div className="layout-container">
+        <div className="layout-container plus-jakarta">
             <Navbar />
             <div className="main-content">
                 <div className="content-area">

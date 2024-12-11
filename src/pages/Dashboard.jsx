@@ -18,7 +18,7 @@ const Dashboard = () => {
   }
 
   return (
-      <div className="dashboard-container px-6 py-8">
+      <div className="dashboard-container px-24 py-8">
         <h1 className="text-4xl font-bold">
           {greeting}, {userName ? userName : "Guest"}!
         </h1>

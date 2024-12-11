@@ -6,7 +6,7 @@ const Profile = () => {
     const user = useSelector((state) => state.auth.user);
 
     return (
-        <div className="profile-container px-6 py-8">
+        <div className="profile-container px-24 py-8">
             <h1 className="text-4xl font-bold">Profile</h1>
 
             {/* Displaying user avatar */}

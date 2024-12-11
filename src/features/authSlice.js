@@ -2,7 +2,8 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 
 // API Base URL
-const API_BASE_URL = 'https://pluginlive-backend.onrender.com/api/v1';
+// const API_BASE_URL = 'https://pluginlive-backend.onrender.com/api/v1';
+const API_BASE_URL = 'http://localhost:3000/api/v1';
 
 // Fetch user data from localStorage
 const userData = JSON.parse(localStorage.getItem('authData')) || null;
@@ -25,9 +26,9 @@ export const login = createAsyncThunk(
     async ({ email, password }, { rejectWithValue }) => {
         try {
             const response = await axios.post(`${API_BASE_URL}/users/login`, {email,password});
-            console.log(email, password + "from slice")
             return response.data.data; // API's `data` field contains user details
         } catch (error) {
+            console.log(error)
             return rejectWithValue(
                 error.response?.data?.message || 'An error occurred during login.'
             );
