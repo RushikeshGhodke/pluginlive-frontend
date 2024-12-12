@@ -10,6 +10,10 @@ import ForgotPassword from "./pages/ForgotPassword.jsx";
 import RegisterPage from "./pages/RegisterPage.jsx";
 import VerifyOTP from "./pages/VerifyOTP.jsx";
 import ResetPassword from "./pages/ResetPassword.jsx";
+import EditDetailsPage from "./pages/EditDetailsPage.jsx";
+import Assessment from "./pages/Assessment.jsx";
+import VideoRecording from "./pages/VideoRecording.jsx";
+import AssessmentDetails from "./pages/AssessmentDetails.jsx";
 
 const App = () => {
     return (
@@ -36,6 +40,48 @@ const App = () => {
                         element={
                             <ProtectedRoute>
                                 <Profile />
+                            </ProtectedRoute>
+                        }
+                    />
+                    <Route
+                        path="/edit"
+                        element={
+                            <ProtectedRoute>
+                                <EditDetailsPage />
+                            </ProtectedRoute>
+                        }
+                    />
+                    <Route
+                        path="/assessment"
+                        element={
+                            <ProtectedRoute>
+                                <Assessment />
+                            </ProtectedRoute>
+                        }
+                    />
+                    <Route
+                        path="/record"
+                        element={
+                            <ProtectedRoute>
+                                <VideoRecording />
+                            </ProtectedRoute>
+                        }
+                    />
+
+                    {/*<Route*/}
+                    {/*    path="/assessments"*/}
+                    {/*    element={*/}
+                    {/*        <ProtectedRoute>*/}
+                    {/*            <AssessmentList />*/}
+                    {/*        </ProtectedRoute>*/}
+                    {/*    }*/}
+                    {/*/>*/}
+
+                    <Route
+                        path="/assessment/:id" // Dynamic route for a single assessment
+                        element={
+                            <ProtectedRoute>
+                                <AssessmentDetails />
                             </ProtectedRoute>
                         }
                     />

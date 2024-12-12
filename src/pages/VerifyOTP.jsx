@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import api from "../api/index.js";
 
 const VerifyOTP = () => {
@@ -11,12 +10,10 @@ const VerifyOTP = () => {
     const location = useLocation();
     const { email } = location.state || {}; // Get email passed from ForgotPassword
 
-    // Handle OTP change
     const handleOtpChange = (e) => {
         setOtp(e.target.value);
     };
 
-    // Handle OTP submission
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
@@ -35,21 +32,40 @@ const VerifyOTP = () => {
     };
 
     return (
-        <div className="verify-otp-container">
-            <h2>Enter OTP</h2>
-            <form onSubmit={handleSubmit}>
-                <input
-                    type="text"
-                    placeholder="Enter OTP"
-                    value={otp}
-                    onChange={handleOtpChange}
-                    required
-                />
-                <button type="submit" disabled={loading}>
-                    {loading ? 'Verifying OTP...' : 'Verify OTP'}
-                </button>
-            </form>
-            {message && <p>{message}</p>}
+        <div className="flex items-center justify-center h-[90vh] bg-gray-100">
+            <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
+                <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">Verify OTP</h2>
+
+                {/* Display success or error message */}
+                {message && (
+                    <div className={`mb-4 text-center text-sm ${message.includes('Invalid') ? 'text-red-500' : 'text-green-500'}`}>
+                        {message}
+                    </div>
+                )}
+
+                <form onSubmit={handleSubmit}>
+                    <div className="mb-6">
+                        <label htmlFor="otp" className="block text-sm font-semibold text-gray-700 mb-2">OTP</label>
+                        <input
+                            id="otp"
+                            type="text"
+                            placeholder="Enter OTP"
+                            value={otp}
+                            onChange={handleOtpChange}
+                            className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            required
+                        />
+                    </div>
+
+                    <button
+                        type="submit"
+                        disabled={loading}
+                        className={`w-full py-2 px-4 rounded-md text-white font-semibold ${loading ? 'bg-gray-400' : 'bg-[#3249D7] hover:bg-[#5B6DDF]'} focus:outline-none`}
+                    >
+                        {loading ? 'Verifying OTP...' : 'Verify OTP'}
+                    </button>
+                </form>
+            </div>
         </div>
     );
 };

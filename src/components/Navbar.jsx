@@ -5,7 +5,7 @@ import arrow from "../assets/arrow.png";
 import "./Navbar.css";
 import { useDispatch, useSelector } from "react-redux";
 import { logoutThunk } from "../features/authSlice.js";
-import { FiUser } from "react-icons/fi";
+import { FiAlignLeft, FiUser } from "react-icons/fi";
 import { FiLogOut } from "react-icons/fi";
 import { FiClock } from "react-icons/fi";
 
@@ -67,11 +67,17 @@ const Navbar = () => {
                                 >
                                     <FiUser className={`ml-3`} /> My Profile
                                 </button>
+                                {/*<button*/}
+                                {/*    onClick={() => navigate("/history")}*/}
+                                {/*    className={`flex items-center justify-start gap-3`}*/}
+                                {/*>*/}
+                                {/*    <FiClock className={`ml-3`} /> History*/}
+                                {/*</button>*/}
                                 <button
-                                    onClick={() => navigate("/history")}
+                                    onClick={() => navigate("/dashboard")}
                                     className={`flex items-center justify-start gap-3`}
                                 >
-                                    <FiClock className={`ml-3`} /> History
+                                    <FiAlignLeft className={`ml-3`} /> Dashboard
                                 </button>
                                 <button
                                     onClick={handleLogout}

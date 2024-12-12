@@ -1,20 +1,25 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import api from "../api/index.js";
+import api from '../api/index.js';
+import { login } from '../features/authSlice.js';
 
-const RegisterPage = () => {
+const EditDetailsPage = () => {
     const navigate = useNavigate();
+    const dispatch = useDispatch();
+
+    // Fetch current user details and token from Redux state
+    const { user, accessToken } = useSelector((state) => state.auth);
 
     // State to handle form input values
     const [formData, setFormData] = useState({
         fullname: '',
         username: '',
         email: '',
-        password: '',
         college: '',
         course: '',
         yearOfStudy: '',
-        role: 'Student',
+        role: '',
         country: '',
         state: '',
         avatar: null, // Handle file input for avatar
@@ -23,7 +28,24 @@ const RegisterPage = () => {
     // State to handle error/success messages
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
-    const [loading, setLoading] = useState(false); // Loading state for button
+
+    // Populate form fields with existing user data
+    useEffect(() => {
+        if (user) {
+            setFormData({
+                fullname: user.fullname || '',
+                username: user.username || '',
+                email: user.email || '',
+                college: user.college || '',
+                course: user.course || '',
+                yearOfStudy: user.yearOfStudy || '',
+                role: user.role || 'Student',
+                country: user.country || '',
+                state: user.state || '',
+                avatar: null, // File inputs cannot be pre-filled
+            });
+        }
+    }, [user]);
 
     // Handle change in form input fields
     const handleChange = (e) => {
@@ -46,52 +68,62 @@ const RegisterPage = () => {
     // Handle form submission
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setLoading(true);
 
-        // Prepare form data for file upload
-        const form = new FormData();
-        for (const key in formData) {
-            form.append(key, formData[key]);
-        }
+        // Prepare data for the API request
+        const updatedData = {
+            fullname: formData.fullname,
+            username: formData.username,
+            email: formData.email,
+            college: formData.college,
+            course: formData.course,
+            yearOfStudy: formData.yearOfStudy,
+            role: formData.role,
+            country: formData.country,
+            state: formData.state,
+        };
 
         try {
-            // Send registration request to the server
-            const response = await api.post('/users/register', form, {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                },
-            });
+            // Ensure token is available
+            if (!accessToken) {
+                setError('You must be logged in to update your details.');
+                return;
+            }
 
-            // If registration is successful
-            if (response.status === 201) {
-                setSuccess('Registration successful! Redirecting to login...');
+            console.log(updatedData)
+            console.log(accessToken)
+            // Send update request to the server
+            const response = await api.put('/users/edit', updatedData);
+
+            // If update is successful
+            if (response.status === 200) {
+                setSuccess('Details updated successfully!');
                 setError('');
 
-                // Redirect to login page after success
+                // Dispatch updated user data to Redux
+                dispatch(login.fulfilled(response.data));
+
+                // Redirect to profile or dashboard
                 setTimeout(() => {
-                    navigate('/login');
+                    navigate('/profile');
                 }, 3000); // Redirect after 3 seconds
             }
         } catch (err) {
             // If there is an error, show the error message
-            setError(err.response?.data?.message || 'Registration failed. Please try again.');
+            setError(err.response?.data?.message || 'Failed to update details. Please try again.');
             setSuccess('');
-        } finally {
-            setLoading(false); // Reset loading state
         }
     };
 
     return (
-        <div className="registration-container p-6 max-w-md mx-auto">
-            <h2 className="text-2xl font-bold mb-4">Register</h2>
+        <div className="edit-details-container p-6 max-w-md mx-auto">
+            <h2 className="text-2xl font-bold mb-4">Edit Your Details</h2>
 
             {/* Display success or error message */}
             {success && <div className="text-green-500 mb-4">{success}</div>}
             {error && <div className="text-red-500 mb-4">{error}</div>}
 
-            {/* Registration Form */}
+            {/* Edit Details Form */}
             <form onSubmit={handleSubmit}>
-                {/* Form Fields */}
                 <div className="mb-4">
                     <label htmlFor="fullname" className="block text-sm font-medium">Full Name</label>
                     <input
@@ -132,19 +164,6 @@ const RegisterPage = () => {
                 </div>
 
                 <div className="mb-4">
-                    <label htmlFor="password" className="block text-sm font-medium">Password</label>
-                    <input
-                        type="password"
-                        id="password"
-                        name="password"
-                        value={formData.password}
-                        onChange={handleChange}
-                        className="mt-2 p-2 w-full border rounded-md"
-                        required
-                    />
-                </div>
-
-                <div className="mb-4">
                     <label htmlFor="college" className="block text-sm font-medium">College</label>
                     <select
                         id="college"
@@ -152,7 +171,6 @@ const RegisterPage = () => {
                         value={formData.college}
                         onChange={handleChange}
                         className="mt-2 p-2 w-full border rounded-md"
-                        required
                     >
                         <option value="">Select your College</option>
                         <option value="Vishwakarma Institute of Technology">Vishwakarma Institute of Technology</option>
@@ -170,7 +188,6 @@ const RegisterPage = () => {
                         value={formData.course}
                         onChange={handleChange}
                         className="mt-2 p-2 w-full border rounded-md"
-                        required
                     >
                         <option value="">Select your Course</option>
                         <option value="Computer Engineering">Computer Engineering</option>
@@ -189,7 +206,6 @@ const RegisterPage = () => {
                         value={formData.yearOfStudy}
                         onChange={handleChange}
                         className="mt-2 p-2 w-full border rounded-md"
-                        required
                     >
                         <option value="">Select your Year</option>
                         <option value="First Year">First Year</option>
@@ -200,45 +216,6 @@ const RegisterPage = () => {
                 </div>
 
                 <div className="mb-4">
-                    <label htmlFor="role" className="block text-sm font-medium">Role</label>
-                    <select
-                        id="role"
-                        name="role"
-                        value={formData.role}
-                        onChange={handleChange}
-                        className="mt-2 p-2 w-full border rounded-md"
-                    >
-                        <option value="Student">Student</option>
-                        <option value="Faculty">Faculty</option>
-                        <option value="Administrator">Administrator</option>
-                    </select>
-                </div>
-
-                <div className="mb-4">
-                    <label htmlFor="country" className="block text-sm font-medium">Country</label>
-                    <input
-                        type="text"
-                        id="country"
-                        name="country"
-                        value={formData.country}
-                        onChange={handleChange}
-                        className="mt-2 p-2 w-full border rounded-md"
-                    />
-                </div>
-
-                <div className="mb-4">
-                    <label htmlFor="state" className="block text-sm font-medium">State</label>
-                    <input
-                        type="text"
-                        id="state"
-                        name="state"
-                        value={formData.state}
-                        onChange={handleChange}
-                        className="mt-2 p-2 w-full border rounded-md"
-                    />
-                </div>
-
-                <div className="mb-4">
                     <label htmlFor="avatar" className="block text-sm font-medium">Avatar</label>
                     <input
                         type="file"
@@ -246,21 +223,18 @@ const RegisterPage = () => {
                         name="avatar"
                         onChange={handleFileChange}
                         className="mt-2 p-2 w-full border rounded-md"
-                        required
                     />
                 </div>
 
-                {/* Register Button with the new style */}
                 <button
                     type="submit"
-                    disabled={loading}
-                    className={`w-full py-2 px-4 rounded-md text-white font-semibold ${loading ? 'bg-gray-400' : 'bg-[#3249D7] hover:bg-[#5B6DDF]'} focus:outline-none mt-4`}
+                    className="w-full bg-blue-500 text-white py-2 rounded-md mt-4 hover:bg-blue-600"
                 >
-                    {loading ? 'Registering...' : 'Register'}
+                    Update Details
                 </button>
             </form>
         </div>
     );
 };
 
-export default RegisterPage;
+export default EditDetailsPage;
