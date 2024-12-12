@@ -63,7 +63,7 @@ const Dashboard = () => {
 
     const handleStartAssessment = () => {
         // if (canStart && hasCameraPermission && hasMicPermission) {
-            navigate(`/localhost:5000/${userId}`);
+            navigate(`http://localhost:5000/${userId}`);
         // }
     };
 
