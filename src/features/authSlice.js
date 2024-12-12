@@ -2,8 +2,8 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 
 // API Base URL
-// const API_BASE_URL = 'https://pluginlive-backend.onrender.com/api/v1';
-const API_BASE_URL = 'http://localhost:3001/api/v1';
+const API_BASE_URL = 'https://pluginlive-backend.onrender.com/api/v1';
+// const API_BASE_URL = 'http://localhost:3001/api/v1';
 
 // Fetch user data from localStorage
 const userData = JSON.parse(localStorage.getItem('authData')) || null;
