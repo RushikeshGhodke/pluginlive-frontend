@@ -1,13 +1,16 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom"; // Use useNavigate for navigation
+import { useNavigate } from "react-router-dom";
+import api from "../api/index.js";
 
 const Dashboard = () => {
-    const navigate = useNavigate(); // For programmatic navigation
-    const userName = useSelector((state) => state.auth.user?.fullname);
+    const navigate = useNavigate();
+    const userId = useSelector((state) => state.auth.user?._id); // Get user ID from Redux
+    const userName = useSelector((state) => state.auth.user?.fullname); // Get user name from Redux
 
-    // Get previous assessments from Redux
-    const assessments = useSelector((state) => state.assessment.details); // Assuming the data is in this format
+    const [assessments, setAssessments] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
     const [showModal, setShowModal] = useState(false);
     const [isTnCAccepted, setIsTnCAccepted] = useState(false);
@@ -15,19 +18,33 @@ const Dashboard = () => {
     const [hasCameraPermission, setHasCameraPermission] = useState(null);
     const [hasMicPermission, setHasMicPermission] = useState(null);
 
-    // Handle T&C input change
+    // Fetch assessments on component mount
+    useEffect(() => {
+        const fetchAssessments = async () => {
+            if (!userId) return; // Exit if user ID is not available
+
+            try {
+                const response = await api.post("/assessments/getAssessments", {
+                    userId, // Send userId in the request body
+                });
+                console.log(response.data.data);
+                setAssessments(response.data.data);
+            } catch (err) {
+                setError("Failed to fetch assessments.");
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchAssessments();
+    }, [userId]);
+
     const handleTnCChange = (e) => {
         const value = e.target.value.trim().toLowerCase();
-        if (value === "start") {
-            setIsTnCAccepted(true);
-            setCanStart(true);
-        } else {
-            setIsTnCAccepted(false);
-            setCanStart(false);
-        }
+        setIsTnCAccepted(value === "start");
+        setCanStart(value === "start");
     };
 
-    // Request permissions and open modal
     const requestPermissions = () => {
         navigator.mediaDevices
             .getUserMedia({ video: true, audio: true })
@@ -36,7 +53,7 @@ const Dashboard = () => {
                 setHasMicPermission(true);
                 stream.getTracks().forEach((track) => track.stop());
             })
-            .catch((err) => {
+            .catch(() => {
                 setHasCameraPermission(false);
                 setHasMicPermission(false);
             });
@@ -44,22 +61,19 @@ const Dashboard = () => {
         setShowModal(true);
     };
 
-    // Handle start assessment
     const handleStartAssessment = () => {
         if (canStart && hasCameraPermission && hasMicPermission) {
-            // Redirect to the assessment page with a question
             navigate("/assessment");
         }
     };
 
-    // Navigate to the assessment details page when clicked
     const handleAssessmentClick = (assessmentId) => {
         navigate(`/assessment/${assessmentId}`);
     };
 
     return (
         <div className="dashboard-container px-24 py-8">
-            <div className={`flex flex-row items-center justify-between mb-8`}>
+            <div className="flex flex-row items-center justify-between mb-8">
                 <h1 className="text-4xl font-bold">
                     Welcome, {userName ? userName : "Guest"}!
                 </h1>
@@ -72,11 +86,15 @@ const Dashboard = () => {
                 </button>
             </div>
 
-            <div className={`h-[2px] bg-gray-300 w-full`}></div>
+            <div className="h-[2px] bg-gray-300 w-full"></div>
 
             <div className="dashboard-content mt-6">
                 <h2 className="text-2xl font-semibold">Previous Assessments</h2>
-                {assessments.length > 0 ? (
+                {loading ? (
+                    <p>Loading...</p>
+                ) : error ? (
+                    <p>{error}</p>
+                ) : assessments.length > 0 ? (
                     <ul>
                         {assessments.map((assessment) => (
                             <li
@@ -85,7 +103,9 @@ const Dashboard = () => {
                                 className="assessment-item cursor-pointer p-2 hover:bg-gray-100"
                             >
                                 <p>{assessment.question}</p>
-                                <p>{`Date: ${new Date(assessment.reportGeneratedAt).toLocaleDateString()}`}</p>
+                                {/*<p>{`Date: ${new Date(*/}
+                                {/*    assessment.reportGeneratedAt*/}
+                                {/*).toLocaleDateString()}`}</p>*/}
                             </li>
                         ))}
                     </ul>
@@ -94,15 +114,20 @@ const Dashboard = () => {
                 )}
             </div>
 
-            {/* Modal */}
             {showModal && (
                 <div className="modal-overlay fixed inset-0 bg-gray-500 bg-opacity-50 flex justify-center items-center">
                     <div className="modal-content bg-white p-6 rounded-lg w-96">
                         <h3 className="text-xl font-semibold">Start Your Assessment</h3>
                         <p>Please grant access to your microphone and camera.</p>
                         <div className="mt-4">
-                            <p>Camera Permission: {hasCameraPermission ? "Granted" : "Not Granted"}</p>
-                            <p>Mic Permission: {hasMicPermission ? "Granted" : "Not Granted"}</p>
+                            <p>
+                                Camera Permission:{" "}
+                                {hasCameraPermission ? "Granted" : "Not Granted"}
+                            </p>
+                            <p>
+                                Mic Permission:{" "}
+                                {hasMicPermission ? "Granted" : "Not Granted"}
+                            </p>
                         </div>
 
                         <div className="mt-6">
@@ -122,9 +147,15 @@ const Dashboard = () => {
                                 Cancel
                             </button>
                             <button
-                                className={`start-btn py-2 px-4 bg-green-600 text-white rounded hover:bg-green-700 ${canStart && hasCameraPermission && hasMicPermission ? "" : "opacity-50 cursor-not-allowed"}`}
+                                className={`start-btn py-2 px-4 bg-green-600 text-white rounded hover:bg-green-700 ${
+                                    canStart && hasCameraPermission && hasMicPermission
+                                        ? ""
+                                        : "opacity-50 cursor-not-allowed"
+                                }`}
                                 onClick={handleStartAssessment}
-                                disabled={!canStart || !hasCameraPermission || !hasMicPermission}
+                                disabled={
+                                    !canStart || !hasCameraPermission || !hasMicPermission
+                                }
                             >
                                 Start
                             </button>
