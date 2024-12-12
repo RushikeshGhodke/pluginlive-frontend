@@ -62,9 +62,9 @@ const Dashboard = () => {
     };
 
     const handleStartAssessment = () => {
-        if (canStart && hasCameraPermission && hasMicPermission) {
-            navigate("/assessment");
-        }
+        // if (canStart && hasCameraPermission && hasMicPermission) {
+            navigate(`/localhost:5000/${userId}`);
+        // }
     };
 
     const handleAssessmentClick = (assessmentId) => {
